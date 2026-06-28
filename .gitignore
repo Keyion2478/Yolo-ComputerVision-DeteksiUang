@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual Env
+yolo/
+
+
+# Dataset
+dataset/
+runs/
+
+# Cache
+.cache/
+
+# VSCode
+.vscode/
