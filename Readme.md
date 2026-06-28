@@ -269,10 +269,3 @@ Folder tersebut akan dibuat otomatis setelah instalasi.
 **Keyion2478**
 
 
----
-
-# ⭐ Support
-
-Jika repository ini bermanfaat, jangan lupa memberikan ⭐ pada repository ini.
-
-Terima kasih telah berkunjung!
