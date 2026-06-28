@@ -1,5 +1,11 @@
 import cv2
 import time
+
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import db
+from datetime import datetime
+
 from ultralytics import YOLO
 
 # ==========================================================
@@ -9,11 +15,25 @@ from ultralytics import YOLO
 model = YOLO("model SmartMoney V4.pt")
 
 
+# ==========================================================
+# FIREBASE
+# ==========================================================
+
+cred = credentials.Certificate(
+    "smartmoneysaver-77244-firebase-adminsdk-fbsvc-5658621e6b.json"
+)
+
+firebase_admin.initialize_app(cred, {
+    'databaseURL': 'https://smartmoneysaver-77244-default-rtdb.asia-southeast1.firebasedatabase.app'
+})
+
+print("Firebase Connected")
+
 # ==========================================
 # CAMERA CONFIG
 # ==========================================
 
-USE_PHONE_CAMERA = True
+USE_PHONE_CAMERA = False
 
 PHONE_IP = "192.168.1.39"
 PHONE_PORT = 8080
@@ -45,16 +65,56 @@ SIZE_TOLERANCE = 0.20          # 20%
 # ==========================================================
 
 last_class = None
+last_box = None
 start_time = None
 data_sent = False
-
+last_status = None
 object_missing_time = None
-
-last_box = None
 
 print("=" * 50)
 print("SMART MONEY DETECTION STARTED")
 print("=" * 50)
+
+def getNominal(class_name):
+
+    mapping = {
+        "Uang 1000": 1000,
+        "Uang 2000": 2000,
+        "Uang 5000": 5000,
+        "Uang 10000": 10000,
+        "Uang 20000": 20000,
+        "Uang 50000": 50000,
+        "Uang 100000": 100000
+    }
+
+    return mapping.get(class_name, 0)
+
+
+# ==========================================================
+# KIRIM DATA AI KE FIREBASE
+# ==========================================================
+
+def kirimAI(nominal, confidence, class_name):
+
+    ref = db.reference("ai")
+
+    data = {
+        "status": "READY",
+        "nominal": nominal,
+        "confidence": round(confidence, 2),
+        "className": class_name,
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+
+    ref.update(data)
+
+    print("\n================================")
+    print("DATA BERHASIL DIKIRIM")
+    print(data)
+    print("================================")
+
+def bacaStatusAI():
+    return db.reference("ai/status").get()
 
 while True:
 
@@ -183,19 +243,42 @@ while True:
                 if elapsed >= STABLE_TIME and not data_sent:
 
                     print("\n")
-
                     print("=" * 50)
                     print("DETEKSI STABIL")
                     print("Class ID   :", class_id)
                     print("Nominal    :", class_name)
-                    print("Confidence :", round(confidence,2), "%")
+                    print("Confidence :", round(confidence, 2), "%")
                     print("=" * 50)
 
-                    ###################################################
-                    # FIREBASE AKAN DITAMBAHKAN DI SINI
-                    ###################################################
+                    nominal = getNominal(class_name)
 
-                    data_sent = True
+                    if nominal == 0:
+                        print("Objek bukan uang, diabaikan.")
+                        data_sent = True
+                        continue
+
+                    status = bacaStatusAI()
+
+                    if status == "IDLE":
+                        print("ESP32 siap menerima data.")
+
+                        kirimAI(
+                            nominal,
+                            confidence,
+                            class_name
+                        )
+
+                        data_sent = True
+
+                    else:
+
+                        if status != last_status:
+                            print(f"Menunggu ESP32... Status = {status}")
+
+                        last_status = status
+                 
+
+                    
 
         last_box = current_box
 

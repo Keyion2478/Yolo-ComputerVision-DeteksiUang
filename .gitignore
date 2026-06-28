@@ -15,3 +15,8 @@ runs/
 
 # VSCode
 .vscode/
+
+#google/
+google-services.json
+
+smartmoneysaver-77244-firebase-adminsdk-fbsvc-5658621e6b.json
