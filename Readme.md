@@ -267,7 +267,6 @@ Folder tersebut akan dibuat otomatis setelah instalasi.
 # 👨‍💻 Author
 
 **Keyion2478**
-<<<<<<< HEAD
 
 
 ---
@@ -277,5 +276,3 @@ Folder tersebut akan dibuat otomatis setelah instalasi.
 Jika repository ini bermanfaat, jangan lupa memberikan ⭐ pada repository ini.
 
 Terima kasih telah berkunjung!
-=======
->>>>>>> 013fba0 (Tahap Pengembangan)
