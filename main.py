@@ -53,8 +53,8 @@ else:
 
 CONF_THRESHOLD = 0.80          # Confidence minimal YOLO
 MIN_STABLE_CONF = 85.0         # Confidence minimal agar timer tetap jalan
-STABLE_TIME = 2.0              # Harus stabil selama 2 detik
-GRACE_TIME = 0.5               # Objek hilang maksimal 0.5 detik
+STABLE_TIME = 1.0              # Harus stabil selama 1 detik
+GRACE_TIME = 2.0               # Objek hilang maksimal 2 detik
 
 # Maksimal perubahan bounding box
 CENTER_TOLERANCE = 40          # pixel
@@ -111,6 +111,24 @@ def kirimAI(nominal, confidence, class_name):
     print("\n================================")
     print("DATA BERHASIL DIKIRIM")
     print(data)
+    print("================================")
+
+def resetAI():
+
+    ref = db.reference("ai")
+
+    data = {
+        "status": "IDLE",
+        "nominal": 0,
+        "confidence": 0,
+        "className": "",
+        "timestamp": ""
+    }
+
+    ref.update(data)
+
+    print("\n================================")
+    print("AI BERHASIL DIRESET")
     print("================================")
 
 def bacaStatusAI():
@@ -306,11 +324,16 @@ while True:
                     print("Sistem siap mendeteksi uang berikutnya.")
                     print("=" * 50)
 
+                    resetAI()
+
                 last_class = None
                 last_box = None
                 start_time = None
                 data_sent = False
                 object_missing_time = None
+
+
+              
 
     # ======================================================
     # TAMPILKAN FRAME
